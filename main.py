@@ -121,5 +121,25 @@ def create_movie(id: int = Body(), title: str = Body(), overview: str = Body(), 
         }
     )
     
-    # return [movie for movie in movies if movie["id"] == id]
+    return [movie for movie in movies if movie["id"] == id]
+
+@app.put("/movies/{id}", tags = ["movies"])
+def update_movie(id: int, title: str = Body(), overview: str = Body(), year: int = Body(), rating: float = Body(), category: str = Body()):
+    for movie in movies:
+        if movie["id"] == id:
+            movie["title"] = title
+            movie["overview"] = overview
+            movie["year"] = year
+            movie["rating"] = rating
+            movie["category"] = category
+    
     return movies
+
+@app.delete("/movies/{id}", tags = ["movies"])
+def delete_movie(id: int):
+    for movie in movies:
+        if movie["id"] == id:
+            movies.remove(movie)
+        
+    return movies
+            
