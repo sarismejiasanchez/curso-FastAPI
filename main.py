@@ -1,7 +1,18 @@
 from fastapi import FastAPI, Body
 # Retornar HTML
 from fastapi.responses import HTMLResponse
+# Creación de Esquemas
+from pydantic import BaseModel
+# Uso de campos Opcionales
+from typing import Optional
 
+class Movie(BaseModel):
+    id: Optional[int] = None
+    title: str
+    overview: str
+    year: int
+    rating: float
+    category: str
 
 app = FastAPI()
 app.title = "Curso de FastAPI"
@@ -109,29 +120,21 @@ def get_bovies_by_category(category: str, rating: float):
     return [movie for movie in movies if movie["category"] == category and movie["rating"] >= rating]
 
 @app.post("/movies", tags = ["movies"])
-def create_movie(id: int = Body(), title: str = Body(), overview: str = Body(), year: int = Body(), rating: float = Body(), category: str = Body()):
-    movies.append(
-        {
-            "id": id,
-            "title": title,
-            "overview": overview,
-            "year": year,
-            "rating": rating,
-            "category": category
-        }
-    )
+def create_movie(movie: Movie):
+    movies.append(movie)
     
-    return [movie for movie in movies if movie["id"] == id]
+    #return [item for item in movies if item["id"] == movie.id]
+    return movies                   
 
 @app.put("/movies/{id}", tags = ["movies"])
-def update_movie(id: int, title: str = Body(), overview: str = Body(), year: int = Body(), rating: float = Body(), category: str = Body()):
-    for movie in movies:
-        if movie["id"] == id:
-            movie["title"] = title
-            movie["overview"] = overview
-            movie["year"] = year
-            movie["rating"] = rating
-            movie["category"] = category
+def update_movie(id: int, movie: Movie):
+    for item in movies:
+        if item["id"] == id:
+            item["title"] = movie.title
+            item["overview"] = movie.overview
+            item["year"] = movie.year
+            item["rating"] = movie.rating
+            item["category"] = movie.category
     
     return movies
 
