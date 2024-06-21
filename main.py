@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, HTTPException
 # Retornar HTML
 from fastapi.responses import HTMLResponse
 # Creación de Esquemas
@@ -121,22 +121,31 @@ def get_bovies_by_category(category: str, rating: float):
 
 @app.post("/movies", tags = ["movies"])
 def create_movie(movie: Movie):
+    # Asignar un nuevo id único
+    new_id = len(movies) + 1
+    movie.id = new_id
+    # Agregar la película al final de la lista
     movies.append(movie)
-    
-    #return [item for item in movies if item["id"] == movie.id]
-    return movies                   
+    # Retornar la película que se acaba de crear
+    return movie                   
 
 @app.put("/movies/{id}", tags = ["movies"])
 def update_movie(id: int, movie: Movie):
-    for item in movies:
+    for index, item in enumerate(movies):
         if item["id"] == id:
-            item["title"] = movie.title
-            item["overview"] = movie.overview
-            item["year"] = movie.year
-            item["rating"] = movie.rating
-            item["category"] = movie.category
+            updated_movie = {
+                "id": id,
+                "title": movie.title,
+                "overview": movie.overview,
+                "year": movie.year,
+                "rating": movie.rating,
+                "category": movie.category
+            }
+            movies[index] = updated_movie  # Actualizar el diccionario en la lista
+            return updated_movie  # Retornar el diccionario actualizado
     
-    return movies
+    # Si no se encuentra la película, lanzar una excepción HTTP 404
+    raise HTTPException(status_code=404, detail="Movie not found")
 
 @app.delete("/movies/{id}", tags = ["movies"])
 def delete_movie(id: int):

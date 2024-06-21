@@ -1,5 +1,24 @@
 # API REST de Películas
 
+## Instalar y Ejecutar la Aplicación
+
+1. **Crea el entorno virtual:**
+    ```bash
+    python3 -m venv venv
+    ```
+2. **Activa el entorno virtual:**
+    ```bash
+    source venv/bin/activate
+    ```
+3. **Instala las dependencias:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+4. **Ejecutar uvicorn para iniciar la aplicación:**
+    ```bash
+    uvicorn main:app --reload --port 5000 --host 0.0.0.0
+    ```
+
 ## Métodos HTTP
 
 El protocolo HTTP define un conjunto de métodos de petición que indican la acción que se desea realizar para un recurso determinado del servidor.
