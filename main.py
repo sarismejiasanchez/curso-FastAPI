@@ -6,6 +6,10 @@ from pydantic import BaseModel
 # Uso de campos Opcionales
 from typing import Optional
 
+app = FastAPI()
+app.title = "Curso de FastAPI"
+app.version = "0.0.1"
+
 class Movie(BaseModel):
     id: Optional[int] = None
     title: str
@@ -14,16 +18,12 @@ class Movie(BaseModel):
     rating: float
     category: str
 
-app = FastAPI()
-app.title = "Curso de FastAPI"
-app.version = "0.0.1"
-
-# Lista movies
+# Lista inicial de películas
 movies = [
     {
         "id": 1,
         "title": "Dune: Parte Dos",
-        "overview": "La segunda parte de la adaptación de la novela de ciencia ficción de Frank Herbert.",
+        "overview": "La segunda parte de la  adaptación de la novela de ciencia ficción de Frank Herbert.",
         "year": 2023,
         "rating": 8.5,
         "category": "Ciencia Ficción"
@@ -35,79 +35,16 @@ movies = [
         "year": 2023,
         "rating": 8.2,
         "category": "Aventura"
-    },
-    {
-        "id": 3,
-        "title": "Spider-Man: A través del Spider-Verso",
-        "overview": "Miles Morales se embarca en una nueva aventura a través del multiverso.",
-        "year": 2023,
-        "rating": 8.7,
-        "category": "Animación"
-    },
-    {
-        "id": 4,
-        "title": "Oppenheimer",
-        "overview": "Biografía del físico teórico J. Robert Oppenheimer y su papel en el Proyecto Manhattan.",
-        "year": 2023,
-        "rating": 8.9,
-        "category": "Drama"
-    },
-    {
-        "id": 5,
-        "title": "The Marvels",
-        "overview": "Carol Danvers, Kamala Khan y Monica Rambeau unen fuerzas en esta aventura del Universo Cinematográfico de Marvel.",
-        "year": 2023,
-        "rating": 7.8,
-        "category": "Acción"
-    },
-    {
-        "id": 6,
-        "title": "Wonka",
-        "overview": "Una precuela que cuenta los orígenes del excéntrico chocolatero Willy Wonka.",
-        "year": 2023,
-        "rating": 7.5,
-        "category": "Fantasía"
-    },
-    {
-        "id": 7,
-        "title": "Indiana Jones y el Dial del Destino",
-        "overview": "Indiana Jones se embarca en otra emocionante aventura arqueológica.",
-        "year": 2023,
-        "rating": 7.4,
-        "category": "Aventura"
-    },
-    {
-        "id": 8,
-        "title": "Misión Imposible: Sentencia Mortal - Parte Uno",
-        "overview": "Ethan Hunt y su equipo enfrentan una nueva misión imposible en esta entrega de la serie.",
-        "year": 2023,
-        "rating": 8.0,
-        "category": "Acción"
-    },
-    {
-        "id": 9,
-        "title": "The Flash",
-        "overview": "Barry Allen utiliza sus poderes para viajar en el tiempo y salvar a su familia, pero crea una realidad alternativa con consecuencias inesperadas.",
-        "year": 2023,
-        "rating": 7.3,
-        "category": "Ciencia Ficción"
-    },
-    {
-        "id": 10,
-        "title": "La Sirenita",
-        "overview": "Una versión en acción real del clásico animado de Disney, que cuenta la historia de Ariel, una joven sirena que sueña con vivir en la superficie.",
-        "year": 2023,
-        "rating": 7.1,
-        "category": "Musical"
     }
 ]
+
 
 # Crear endpoint
 @app.get('/', tags = ['home'])
 def message():
     return HTMLResponse("<h1>Hello World!</h1>")
 
-@app.get('/movies', tags = ['movies'])
+@app.get("/movies", tags=["movies"], response_model=list[Movie])
 def get_movies():
     return movies
 
@@ -121,31 +58,27 @@ def get_bovies_by_category(category: str, rating: float):
 
 @app.post("/movies", tags = ["movies"])
 def create_movie(movie: Movie):
+    new_movie = movie.model_dump()
     # Asignar un nuevo id único
-    new_id = len(movies) + 1
-    movie.id = new_id
+    new_movie["id"] = len(movies) + 1
     # Agregar la película al final de la lista
-    movies.append(movie)
+    movies.append(new_movie)
     # Retornar la película que se acaba de crear
-    return movie                   
+    return new_movie                   
 
-@app.put("/movies/{id}", tags = ["movies"])
+@app.put("/movies/{id}", tags=["movies"], response_model=Movie)
 def update_movie(id: int, movie: Movie):
     for index, item in enumerate(movies):
         if item["id"] == id:
-            updated_movie = {
-                "id": id,
-                "title": movie.title,
-                "overview": movie.overview,
-                "year": movie.year,
-                "rating": movie.rating,
-                "category": movie.category
-            }
+            updated_movie = movie.model_dump()
+            updated_movie["id"] = id
             movies[index] = updated_movie  # Actualizar el diccionario en la lista
             return updated_movie  # Retornar el diccionario actualizado
     
     # Si no se encuentra la película, lanzar una excepción HTTP 404
     raise HTTPException(status_code=404, detail="Movie not found")
+
+
 
 @app.delete("/movies/{id}", tags = ["movies"])
 def delete_movie(id: int):
