@@ -1,8 +1,8 @@
 from fastapi import FastAPI, Body, HTTPException
 # Retornar HTML
 from fastapi.responses import HTMLResponse
-# Creación de Esquemas
-from pydantic import BaseModel
+# Creación de Esquemas y Validaciones
+from pydantic import BaseModel, Field
 # Uso de campos Opcionales
 from typing import Optional
 
@@ -12,9 +12,11 @@ app.version = "0.0.1"
 
 class Movie(BaseModel):
     id: Optional[int] = None
-    title: str
-    overview: str
-    year: int
+    # Valor por defecto, Minimo 5 y Máximo 15 caracteres
+    title: str = Field(default = "My movie", min_length = 5, max_length = 15)
+    overview: str = Field(default = "Movie description", min_length = 15, max_length = 50)
+    # Define como valor máximo 2024
+    year: int = Field(default = 2022, le = 2024)
     rating: float
     category: str
 
